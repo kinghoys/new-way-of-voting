@@ -1,0 +1,22 @@
+-- Create the voting_system database if it doesn't exist
+CREATE DATABASE IF NOT EXISTS voting_system;
+
+-- Switch to the voting_system database
+USE voting_system;
+
+-- Create the candidates table if it doesn't exist
+CREATE TABLE IF NOT EXISTS candidates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    party VARCHAR(255),
+    profile_image VARCHAR(255)
+);
+
+-- Insert sample candidates into the candidates table
+INSERT INTO candidates (name, party, profile_image) 
+VALUES 
+    ('Narendra Modi', 'BJP', 'modi.jpg'),
+    ('Amit Shah', 'BJP', 'amit_shah.jpg'),
+    ('Rahul Gandhi', 'Congress', 'rahul_gandhi.jpg'),
+    ('Priyanka Gandhi', 'Congress', 'priyanka_gandhi.jpg'),
+    ('Manmohan Singh', 'Congress', 'manmohan_singh.jpg');
