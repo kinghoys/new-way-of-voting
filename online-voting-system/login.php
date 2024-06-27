@@ -1,48 +1,45 @@
-<?php
-require 'config.php';
-session_start();
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $aadhar_number = $_POST['aadhar_number'];
-    $password = $_POST['password'];
-
-    // Check if user exists
-    $stmt = $conn->prepare("SELECT * FROM users WHERE aadhar_number = ?");
-    $stmt->bind_param("s", $aadhar_number);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-
-    if ($user && password_verify($password, $user['password_hash'])) {
-        $_SESSION['user_id'] = $user['id'];
-        header("Location: vote.php");
-        exit();
-    } else {
-        echo "Invalid credentials.";
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Login - Online Voting System</title>
-    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <header>
+    <header class="header text-center bg-primary text-white py-3">
         <h1>Login</h1>
     </header>
-    <main>
-        <form action="login.php" method="post">
-            <label for="aadhar_number">Aadhar Number:</label>
-            <input type="text" id="aadhar_number" name="aadhar_number" required><br>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required><br>
-            <button type="submit">Login</button>
-        </form>
+    <main class="main-container my-4">
+        <div class="container">
+            <?php if (count($errors) > 0): ?>
+                <div class="alert alert-danger">
+                    <?php foreach ($errors as $error): ?>
+                        <p><?php echo $error; ?></p>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            <form action="login.php" method="post" class="form-horizontal">
+                <div class="form-group row">
+                    <label for="aadhar_number" class="col-sm-2 col-form-label">Aadhar Number:</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="aadhar_number" name="aadhar_number" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="password" class="col-sm-2 col-form-label">Password:</label>
+                    <div class="col-sm-10">
+                        <input type="password" id="password" name="password" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-10 offset-sm-2">
+                        <button type="submit" class="btn btn-success">Login</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </main>
-    <footer>
+    <footer class="footer bg-dark text-white text-center py-3">
         <p>&copy; 2024 Election Commission of India</p>
     </footer>
 </body>

@@ -8,7 +8,18 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+// Fetch user details
 $user_id = $_SESSION['user_id'];
+$stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
+
+// Redirect admin to admin dashboard
+if ($user['role'] == 'admin') {
+    header("Location: admin_dashboard.php");
+    exit();
+}
 
 // Check if user has already voted
 $stmt = $conn->prepare("SELECT * FROM votes WHERE user_id = ?");
@@ -35,7 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['candidate_id'])) {
     $stmt = $conn->prepare("INSERT INTO votes (user_id, candidate_id) VALUES (?, ?)");
     $stmt->bind_param("ii", $user_id, $candidate_id);
     if ($stmt->execute()) {
-        echo "Vote cast successfully!";
+        header("Location: logout.php?message=thankyou");
+        exit();
     } else {
         echo "Error casting vote.";
     }
@@ -47,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['candidate_id'])) {
 <head>
     <title>Vote - Online Voting System</title>
     <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script>
         let timer;
         let timeRemaining = 300; // 5 minutes in seconds
@@ -68,22 +81,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['candidate_id'])) {
     </script>
 </head>
 <body>
-    <header>
+    <header class="header">
         <h1>Vote for Your Candidate</h1>
         <div id="timer"></div>
     </header>
-    <main>
+    <main class="main-container">
         <form action="vote.php" method="post">
             <?php foreach ($candidates as $candidate): ?>
-                <div>
-                    <img src="<?php echo $candidate['profile_image']; ?>" alt="<?php echo $candidate['name']; ?>" width="100">
-                    <label>
-                        <input type="radio" name="candidate_id" value="<?php echo $candidate['id']; ?>" required>
+                <div class="form-group">
+                    <img src="<?php echo $candidate['profile_image']; ?>" alt="<?php echo $candidate['name']; ?>" width="100" class="img-thumbnail">
+                    <label class="form-check-label">
+                        <input type="radio" name="candidate_id" value="<?php echo $candidate['id']; ?>" class="form-check-input" required>
                         <?php echo $candidate['name']; ?> (<?php echo $candidate['party']; ?>)
                     </label>
                 </div>
             <?php endforeach; ?>
-            <button type="submit">Submit Vote</button>
+            <button type="submit" class="btn btn-success">Submit Vote</button>
         </form>
     </main>
     <footer>

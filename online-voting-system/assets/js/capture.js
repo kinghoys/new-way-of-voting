@@ -1,19 +1,38 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const video = document.createElement("video");
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+function captureImage() {
+    var video = document.createElement('video');
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    var width = 320;
+    var height = 240;
+    canvas.width = width;
+    canvas.height = height;
+    var streaming = false;
 
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(function (stream) {
             video.srcObject = stream;
             video.play();
-            document.getElementById("camera").appendChild(video);
         })
-        .catch(err => console.error("Error accessing camera: " + err));
+        .catch(function (err) {
+            console.log("An error occurred: " + err);
+        });
 
-    window.captureImage = function() {
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const dataURL = canvas.toDataURL("image/png");
-        document.getElementById("captured_image_data").value = dataURL;
-    };
-});
+    video.addEventListener('canplay', function (ev) {
+        if (!streaming) {
+            video.setAttribute('width', width);
+            video.setAttribute('height', height);
+            streaming = true;
+        }
+    }, false);
+
+    document.getElementById('camera').appendChild(video);
+
+    video.addEventListener('click', function () {
+        context.drawImage(video, 0, 0, width, height);
+        var data = canvas.toDataURL('image/png');
+        document.getElementById('captured_image_data').value = data;
+        video.srcObject.getTracks().forEach(track => track.stop());
+        video.remove();
+        alert("Image captured successfully.");
+    }, false);
+}
